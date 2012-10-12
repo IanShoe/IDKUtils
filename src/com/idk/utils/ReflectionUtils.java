@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ian.utils;
+package com.idk.utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

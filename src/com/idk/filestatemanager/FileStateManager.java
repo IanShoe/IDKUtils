@@ -1,6 +1,6 @@
-package ian.filestatemanager;
+package com.idk.filestatemanager;
 
-import ian.utils.FileUtil;
+import com.idk.utils.FileUtil;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
