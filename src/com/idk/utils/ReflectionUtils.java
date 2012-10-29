@@ -77,35 +77,30 @@ public class ReflectionUtils {
 
     /**
      * The meat and potatoes method to find a nested field any amount of layers
-     * deep. Right now I also try to ensure that the result follows Java Naming
-     * Conventions. Class names have their first case capitalized but their
-     * instances do not. We want the instance so I lower the first capital.
-     *
-     * The result is the string path to the nested field for propertyUtils
-     * Example: "Person.address.city" where person & address is a complex object
+     * deep. The result is the string path to the nested field for propertyUtils
+     * Example: "Person.address.city" where person & address are complex
+     * objects.
      *
      * @param baseClass
      * @param fieldString
      * @return string version for PropertyUtils to getNestedProperty with
      */
-    private static String findNestedField(Class baseClass, String fieldString) {
-        Collection<Class> currentObjectClasses = findClassObjects(baseClass);
-
-        //list of nested classes that did not contain the field but can be checked deeper
-        Collection<Class> possibleClasses = new ArrayList<Class>();
-
-        for (Class clazz : currentObjectClasses) {
+    private static String findNestedField(Class<?> baseClass, String fieldString) {
+        Collection<Field> currentObjectFields = findFieldObjects(baseClass);
+        Collection<Field> possibleFields = new ArrayList<Field>();
+        for (Field field : currentObjectFields) {
+            Class<?> clazz = field.getType();
             try {
                 clazz.getDeclaredField(fieldString);
-                return FormatUtils.lowerFirstCapital(clazz.getSimpleName()) + "." + fieldString;
-            } catch (NoSuchFieldException ex) {
-                possibleClasses.add(clazz);
+                return field.getName() + "." + fieldString;
+            } catch (NoSuchFieldException e) {
+                possibleFields.add(field);
             }
         }
-        for (Class clazz : possibleClasses) {
-            String possible = findNestedField(clazz, fieldString);
+        for (Field field : possibleFields) {
+            String possible = findNestedField(field.getType(), fieldString);
             if (possible != null) {
-                StringBuilder fieldBuilder = new StringBuilder(FormatUtils.lowerFirstCapital(clazz.getSimpleName()) + ".");
+                StringBuilder fieldBuilder = new StringBuilder(field.getName() + ".");
                 return fieldBuilder.append(possible).toString();
             }
         }
@@ -117,18 +112,17 @@ public class ReflectionUtils {
      * "primitive" types
      *
      * @param clazz class to search
-     * @return list of complex classes
+     * @return list of fields that are complex classes
      */
-    private static Collection<Class> findClassObjects(Class clazz) {
-        Collection<Class> objects = new ArrayList<Class>();
+    private static Collection<Field> findFieldObjects(Class<?> clazz) {
+        Collection<Field> fields = new ArrayList<Field>();
         for (Field field : clazz.getDeclaredFields()) {
-            Class fieldClass = field.getType();
-            if (!fieldClass.isPrimitive() && !ignoreList.contains(fieldClass)) {
-                //Found nested object under baseObject
-                objects.add(field.getType());
+            if (!field.getType().isPrimitive() && !ignoreList.contains(field.getType())) {
+                // Found nested object under baseObject
+                fields.add(field);
             }
         }
-        return objects;
+        return fields;
     }
 
     /**
