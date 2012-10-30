@@ -30,6 +30,44 @@ public class FormatUtilsTest {
     }
 
     /**
+     * Test of formatUpperToUnderscore method, of class FormatUtils.
+     */
+    @Test
+    public void testFormatSmartAllUpperToUnderscore() {
+        System.out.println("formatSmartAllUpperToUnderscore");
+        
+        String unformattedName = "thisIsAString";
+        String expResult = "this_is_a_string";
+        String result = FormatUtils.formatSmartAllUpperToUnderscore(unformattedName);
+        assertEquals(expResult, result);
+        
+        unformattedName ="ThisIsAString";
+        expResult = "this_is_a_string";
+        result = FormatUtils.formatSmartAllUpperToUnderscore(unformattedName);
+        assertEquals(expResult, result);
+        
+        unformattedName = "ROYGBIV";
+        expResult = "roygbiv";
+        result = FormatUtils.formatSmartAllUpperToUnderscore(unformattedName);
+        assertEquals(expResult, result);
+        
+        unformattedName = "MVDConfig";
+        expResult = "mvd_config";
+        result = FormatUtils.formatSmartAllUpperToUnderscore(unformattedName);
+        assertEquals(expResult, result);
+        
+        unformattedName = "ACRONymACRO";
+        expResult = "acro_nym_acro";
+        result = FormatUtils.formatSmartAllUpperToUnderscore(unformattedName);
+        assertEquals(expResult, result);
+        
+        unformattedName ="TestEVERYThingMAN";
+        expResult = "test_every_thing_man";
+        result = FormatUtils.formatSmartAllUpperToUnderscore(unformattedName);
+        assertEquals(expResult, result);
+    }
+
+    /**
      * Test of formatUnderscoreToUpper method, of class FormatUtils.
      */
     @Test
@@ -54,7 +92,6 @@ public class FormatUtilsTest {
 //        String result = FormatUtils.addColumnsAsString(items);
 //        assertEquals(expResult, result);
 //    }
-
     /**
      * Test of addValuesAsString method, of class FormatUtils.
      */
@@ -68,7 +105,6 @@ public class FormatUtilsTest {
 //        String result = FormatUtils.addValuesAsString(items);
 //        assertEquals(expResult, result);
 //    }
-
     /**
      * Test of lowerFirstCapital method, of class FormatUtils.
      */
