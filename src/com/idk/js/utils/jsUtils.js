@@ -24,6 +24,5 @@ var find = function(instance, list, property) {
             break;
         }
     }
-    
     return found;
 }

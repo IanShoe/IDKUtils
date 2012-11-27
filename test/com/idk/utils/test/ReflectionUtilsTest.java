@@ -7,8 +7,10 @@ package com.idk.utils.test;
 import com.idk.exception.FieldNotFoundException;
 import com.idk.exception.FieldSetException;
 import com.idk.utils.ReflectionUtils;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import org.junit.Test;
@@ -135,5 +137,20 @@ public class ReflectionUtilsTest {
             fail("FieldSetException was not thrown when it should have been.");
         } catch (FieldSetException ex) {
         }
+    }
+
+    /**
+     * Test of getAllFields method, of class ReflectionUtils.
+     */
+    @Test
+    public void testGetAllFields() throws Exception {
+        System.out.println("Testing getAllFields");
+        List<Field> fields = ReflectionUtils.getAllFields(One.class);
+        List<Field> checkFields = new ArrayList<Field>();
+        checkFields.add(One.class.getDeclaredField("oneString"));
+        checkFields.add(Two.class.getDeclaredField("twoString"));
+        checkFields.add(Two.class.getDeclaredField("three"));
+        checkFields.add(Three.class.getDeclaredField("threeString"));
+        fields.containsAll(checkFields);
     }
 }

@@ -8,9 +8,7 @@ import com.idk.exception.FieldNotFoundException;
 import com.idk.exception.FieldSetException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
 import org.apache.commons.beanutils.PropertyUtils;
 
 /**
@@ -24,6 +22,28 @@ public class ReflectionUtils {
      * searching for a class' nested complex objects.
      */
     private static final HashSet<Class<?>> ignoreList = setIgnoreList();
+
+    /**
+     * Method to set the ignore list for primitive wrappers
+     *
+     * @return
+     */
+    private static HashSet<Class<?>> setIgnoreList() {
+        HashSet<Class<?>> classIgnoreList = new HashSet<Class<?>>();
+        classIgnoreList.add(Boolean.class);
+        classIgnoreList.add(Byte.class);
+        classIgnoreList.add(Character.class);
+        classIgnoreList.add(Double.class);
+        classIgnoreList.add(Float.class);
+        classIgnoreList.add(Integer.class);
+//        classIgnoreList.add(List.class); // somehow I will implement this later
+//        classIgnoreList.add(Collection.class); // somehow I will implement this later
+        classIgnoreList.add(Long.class);
+        classIgnoreList.add(String.class);
+        classIgnoreList.add(Short.class);
+        classIgnoreList.add(Void.class);
+        return classIgnoreList;
+    }
 
     /**
      * Attempt to getProperty in base class first. If not found, search
@@ -126,24 +146,17 @@ public class ReflectionUtils {
     }
 
     /**
-     * Method to set the ignore list for primitive wrappers
+     * Helper method to get a class's fields found locally and in it's parent
+     * classes
      *
-     * @return
+     * @param type class to find all fields
+     * @return list of fields
      */
-    private static HashSet<Class<?>> setIgnoreList() {
-        HashSet<Class<?>> classIgnoreList = new HashSet<Class<?>>();
-        classIgnoreList.add(Boolean.class);
-        classIgnoreList.add(Byte.class);
-        classIgnoreList.add(Character.class);
-        classIgnoreList.add(Double.class);
-        classIgnoreList.add(Float.class);
-        classIgnoreList.add(Integer.class);
-//        classIgnoreList.add(List.class); // somehow I will implement this later
-//        classIgnoreList.add(Collection.class); // somehow I will implement this later
-        classIgnoreList.add(Long.class);
-        classIgnoreList.add(String.class);
-        classIgnoreList.add(Short.class);
-        classIgnoreList.add(Void.class);
-        return classIgnoreList;
+    public static List<Field> getAllFields(Class<?> type) {
+        List<Field> fields = new ArrayList<Field>();
+        for (Class<?> c = type; c != null; c = c.getSuperclass()) {
+            fields.addAll(Arrays.asList(c.getDeclaredFields()));
+        }
+        return fields;
     }
 }
