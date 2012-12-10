@@ -8,7 +8,10 @@ import com.idk.exception.FieldNotFoundException;
 import com.idk.exception.FieldSetException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import org.apache.commons.beanutils.PropertyUtils;
 
 /**
@@ -106,7 +109,7 @@ public class ReflectionUtils {
      * @return string version for PropertyUtils to getNestedProperty with
      */
     private static String findNestedField(Class<?> baseClass, String fieldString) {
-        Collection<Field> currentObjectFields = findFieldObjects(baseClass);
+        Collection<Field> currentObjectFields = getFieldObjects(baseClass);
         Collection<Field> possibleFields = new ArrayList<Field>();
         for (Field field : currentObjectFields) {
             Class<?> clazz = field.getType();
@@ -128,17 +131,31 @@ public class ReflectionUtils {
     }
 
     /**
+     * Method to get a class's fields found locally and in it's parent
+     * classes
+     *
+     * @param type class to find all fields
+     * @return list of fields
+     */
+    public static Collection<Field> getAllClassFields(Class<?> clazz) {
+        Collection<Field> fields = new ArrayList<Field>();
+        for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
+            fields.addAll(Arrays.asList(c.getDeclaredFields()));
+        }
+        return fields;
+    }
+
+    /**
      * Method to determine which fields in a class are objects instead of
      * "primitive" types
      *
      * @param clazz class to search
      * @return list of fields that are complex classes
      */
-    private static Collection<Field> findFieldObjects(Class<?> clazz) {
+    public static Collection<Field> getFieldObjects(Class<?> clazz) {
         Collection<Field> fields = new ArrayList<Field>();
-        for (Field field : clazz.getDeclaredFields()) {
+        for (Field field : getAllClassFields(clazz)) {
             if (!field.getType().isPrimitive() && !ignoreList.contains(field.getType())) {
-                // Found nested object under baseObject
                 fields.add(field);
             }
         }
@@ -146,16 +163,17 @@ public class ReflectionUtils {
     }
 
     /**
-     * Helper method to get a class's fields found locally and in it's parent
-     * classes
+     * Method to get all fields in an object including parent and containing
+     * objects.
      *
-     * @param type class to find all fields
-     * @return list of fields
+     * @param clazz base class
+     * @return complete list of fields
      */
-    public static List<Field> getAllFields(Class<?> type) {
-        List<Field> fields = new ArrayList<Field>();
-        for (Class<?> c = type; c != null; c = c.getSuperclass()) {
-            fields.addAll(Arrays.asList(c.getDeclaredFields()));
+    public static Collection<Field> getAllFields(Class<?> clazz) {
+        Collection<Field> fields = getAllClassFields(clazz);
+        Collection<Field> fieldObjects = getFieldObjects(clazz);
+        for (Field field : fieldObjects) {
+            fields.addAll(getAllFields(field.getType()));
         }
         return fields;
     }

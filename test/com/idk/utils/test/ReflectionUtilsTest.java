@@ -10,9 +10,7 @@ import com.idk.utils.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import org.junit.Test;
 
 /**
@@ -21,7 +19,29 @@ import org.junit.Test;
  */
 public class ReflectionUtilsTest {
 
-    public static class One {
+    public static abstract class testBase {
+
+        private String baseString = "baseValue";
+        private Object baseObject = new Object();
+
+        public String getBaseString() {
+            return baseString;
+        }
+
+        public void setBaseString(String baseString) {
+            this.baseString = baseString;
+        }
+
+        public Object getBaseObject() {
+            return baseObject;
+        }
+
+        public void setBaseObject(Object baseObject) {
+            this.baseObject = baseObject;
+        }
+    }
+
+    public static class One extends testBase {
 
         private String oneString = "oneValue";
         private Two two = new Two();
@@ -95,7 +115,6 @@ public class ReflectionUtilsTest {
      */
     @Test
     public void testGetNestedProperty() throws Exception {
-        System.out.println("Testing getNestedProperty");
         One one = new One();
         Collection<Two> twoz = new ArrayList<Two>();
         Two two = new Two();
@@ -117,7 +136,6 @@ public class ReflectionUtilsTest {
      */
     @Test
     public void testSetNestedProperty() throws Exception {
-        System.out.println("Testing setNestedProperty");
         One one = new One();
         Collection<Two> twoz = new ArrayList<Two>();
         Two two = new Two();
@@ -143,14 +161,44 @@ public class ReflectionUtilsTest {
      * Test of getAllFields method, of class ReflectionUtils.
      */
     @Test
+    public void testGetAllClassFields() throws Exception {
+        Collection<Field> fields = ReflectionUtils.getAllClassFields(One.class);
+        Collection<Field> checkFields = new ArrayList<Field>();
+        checkFields.add(One.class.getDeclaredField("oneString"));
+        checkFields.add(One.class.getDeclaredField("two"));
+        checkFields.add(One.class.getDeclaredField("twoList"));
+        checkFields.add(testBase.class.getDeclaredField("baseString"));
+        checkFields.add(testBase.class.getDeclaredField("baseObject"));
+        assertTrue(fields.containsAll(checkFields));
+    }
+
+    /**
+     * Test of getAllFields method, of class ReflectionUtils.
+     */
+    @Test
+    public void testGetFieldObjects() throws Exception {
+        Collection<Field> fields = ReflectionUtils.getFieldObjects(One.class);
+        Collection<Field> checkFields = new ArrayList<Field>();
+        checkFields.add(One.class.getDeclaredField("two"));
+        checkFields.add(One.class.getDeclaredField("twoList"));
+        checkFields.add(testBase.class.getDeclaredField("baseObject"));
+        assertTrue(fields.containsAll(checkFields));
+    }
+
+    /**
+     * Test of getAllFields method, of class ReflectionUtils.
+     */
+    @Test
     public void testGetAllFields() throws Exception {
-        System.out.println("Testing getAllFields");
-        List<Field> fields = ReflectionUtils.getAllFields(One.class);
-        List<Field> checkFields = new ArrayList<Field>();
+        Collection<Field> fields = ReflectionUtils.getAllFields(One.class);
+        Collection<Field> checkFields = new ArrayList<Field>();
         checkFields.add(One.class.getDeclaredField("oneString"));
         checkFields.add(Two.class.getDeclaredField("twoString"));
-        checkFields.add(Two.class.getDeclaredField("three"));
         checkFields.add(Three.class.getDeclaredField("threeString"));
-        fields.containsAll(checkFields);
+        checkFields.add(testBase.class.getDeclaredField("baseString"));
+        checkFields.add(One.class.getDeclaredField("two"));
+        checkFields.add(Two.class.getDeclaredField("three"));
+        checkFields.add(testBase.class.getDeclaredField("baseObject"));
+        assertTrue(fields.containsAll(checkFields));
     }
 }
