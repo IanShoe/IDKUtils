@@ -6,6 +6,10 @@ package com.idk.utils.test;
 
 import com.idk.exception.FieldNotFoundException;
 import com.idk.utils.ReflectionUtils;
+import com.idk.utils.object.Base;
+import com.idk.utils.object.One;
+import com.idk.utils.object.Three;
+import com.idk.utils.object.Two;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,97 +21,6 @@ import org.junit.Test;
  * @author shoemaki
  */
 public class ReflectionUtilsTest {
-
-    public static abstract class testBase {
-
-        private String baseString = "baseValue";
-        private Object baseObject = new Object();
-
-        public String getBaseString() {
-            return baseString;
-        }
-
-        public void setBaseString(String baseString) {
-            this.baseString = baseString;
-        }
-
-        public Object getBaseObject() {
-            return baseObject;
-        }
-
-        public void setBaseObject(Object baseObject) {
-            this.baseObject = baseObject;
-        }
-    }
-
-    public static class One extends testBase {
-
-        private String oneString = "oneValue";
-        private Two two = new Two();
-        private Collection<Two> twoList = new ArrayList<Two>();
-
-        public Collection<Two> getTwoList() {
-            return twoList;
-        }
-
-        public void setTwoList(Collection<Two> twoList) {
-            this.twoList = twoList;
-        }
-
-        public Two getTwo() {
-            return this.two;
-        }
-
-        public void setTwo(Two two) {
-            this.two = two;
-        }
-
-        public String getOneString() {
-            return this.oneString;
-        }
-
-        public void setOneString(String oneString) {
-            this.oneString = oneString;
-        }
-    }
-
-    public static class Two {
-
-        private String twoString = "twoValue";
-        private Three three = new Three();
-
-        public Three getThree() {
-            return this.three;
-        }
-
-        public void setThree(Three three) {
-            this.three = three;
-        }
-
-        public String getTwoString() {
-            return this.twoString;
-        }
-
-        public void setTwoString(String twoString) {
-            this.twoString = twoString;
-        }
-    }
-
-    public static class Three {
-
-        private String threeString = "threeValue";
-
-        public String getThreeString() {
-            return this.threeString;
-        }
-
-        public void setThreeString(String threeString) {
-            this.threeString = threeString;
-        }
-    }
-
-    public ReflectionUtilsTest() {
-    }
 
     /**
      * Test of getNestedProperty method, of class ReflectionUtils.
@@ -166,8 +79,8 @@ public class ReflectionUtilsTest {
         checkFields.add(One.class.getDeclaredField("oneString"));
         checkFields.add(One.class.getDeclaredField("two"));
         checkFields.add(One.class.getDeclaredField("twoList"));
-        checkFields.add(testBase.class.getDeclaredField("baseString"));
-        checkFields.add(testBase.class.getDeclaredField("baseObject"));
+        checkFields.add(Base.class.getDeclaredField("baseString"));
+        checkFields.add(Base.class.getDeclaredField("baseObject"));
         assertTrue(fields.containsAll(checkFields));
     }
 
@@ -180,7 +93,7 @@ public class ReflectionUtilsTest {
         Collection<Field> checkFields = new ArrayList<Field>();
         checkFields.add(One.class.getDeclaredField("two"));
         checkFields.add(One.class.getDeclaredField("twoList"));
-        checkFields.add(testBase.class.getDeclaredField("baseObject"));
+        checkFields.add(Base.class.getDeclaredField("baseObject"));
         assertTrue(fields.containsAll(checkFields));
     }
 
@@ -194,11 +107,44 @@ public class ReflectionUtilsTest {
         checkFields.add(One.class.getDeclaredField("oneString"));
         checkFields.add(Two.class.getDeclaredField("twoString"));
         checkFields.add(Three.class.getDeclaredField("threeString"));
-        checkFields.add(testBase.class.getDeclaredField("baseString"));
+        checkFields.add(Base.class.getDeclaredField("baseString"));
         checkFields.add(One.class.getDeclaredField("two"));
         checkFields.add(Two.class.getDeclaredField("three"));
-        checkFields.add(testBase.class.getDeclaredField("baseObject"));
+        checkFields.add(Base.class.getDeclaredField("baseObject"));
         assertTrue(fields.containsAll(checkFields));
+    }
+
+    /**
+     * Test of getPrimitiveFields method, of class ReflectionUtils.
+     */
+    @Test
+    public void testGetPrimitiveFields() throws Exception {
+        Collection<Field> fields = ReflectionUtils.getPrimitiveFields(One.class);
+        Collection<Field> checkFields = new ArrayList<Field>();
+        checkFields.add(One.class.getDeclaredField("oneString"));
+        checkFields.add(Base.class.getDeclaredField("baseString"));
+        assertTrue(fields.containsAll(checkFields));
+        assertTrue(!fields.contains(One.class.getDeclaredField("two")));
+        assertTrue(!fields.contains(One.class.getDeclaredField("twoList")));
+        assertTrue(!fields.contains(Base.class.getDeclaredField("baseObject")));
+    }
+
+    /**
+     * Test of getAllPrimitiveFields method, of class ReflectionUtils.
+     */
+    @Test
+    public void testGetAllPrimitiveFields() throws Exception {
+        Collection<Field> fields = ReflectionUtils.getAllFields(One.class);
+        fields = ReflectionUtils.removeFieldObjects(fields);
+        Collection<Field> checkFields = new ArrayList<Field>();
+        checkFields.add(One.class.getDeclaredField("oneString"));
+        checkFields.add(Two.class.getDeclaredField("twoString"));
+        checkFields.add(Three.class.getDeclaredField("threeString"));
+        checkFields.add(Base.class.getDeclaredField("baseString"));
+        assertTrue(fields.containsAll(checkFields));
+        assertTrue(!fields.contains(One.class.getDeclaredField("two")));
+        assertTrue(!fields.contains(Two.class.getDeclaredField("three")));
+        assertTrue(!fields.contains(Base.class.getDeclaredField("baseObject")));
     }
 
     /**
@@ -212,10 +158,28 @@ public class ReflectionUtilsTest {
         checkFields.add(One.class.getDeclaredField("oneString"));
         checkFields.add(Two.class.getDeclaredField("twoString"));
         checkFields.add(Three.class.getDeclaredField("threeString"));
-        checkFields.add(testBase.class.getDeclaredField("baseString"));
+        checkFields.add(Base.class.getDeclaredField("baseString"));
         assertTrue(fields.containsAll(checkFields));
         assertTrue(!fields.contains(One.class.getDeclaredField("two")));
         assertTrue(!fields.contains(Two.class.getDeclaredField("three")));
-        assertTrue(!fields.contains(testBase.class.getDeclaredField("baseObject")));
+        assertTrue(!fields.contains(Base.class.getDeclaredField("baseObject")));
+    }
+
+    /**
+     * Test of getAllFields method, of class ReflectionUtils.
+     */
+    @Test
+    public void testRemoveFieldPrimitives() throws Exception {
+        Collection<Field> fields = ReflectionUtils.getAllFields(One.class);
+        fields = ReflectionUtils.removeFieldPrimitives(fields);
+        Collection<Field> checkFields = new ArrayList<Field>();
+        checkFields.add(One.class.getDeclaredField("two"));
+        checkFields.add(Two.class.getDeclaredField("three"));
+        checkFields.add(Base.class.getDeclaredField("baseObject"));
+        assertTrue(fields.containsAll(checkFields));
+        assertTrue(!fields.contains(One.class.getDeclaredField("oneString")));
+        assertTrue(!fields.contains(Two.class.getDeclaredField("twoString")));
+        assertTrue(!fields.contains(Three.class.getDeclaredField("threeString")));
+        assertTrue(!fields.contains(Base.class.getDeclaredField("baseString")));
     }
 }

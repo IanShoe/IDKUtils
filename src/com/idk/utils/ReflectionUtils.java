@@ -123,7 +123,7 @@ public class ReflectionUtils {
      * "primitive" types
      *
      * @param clazz class to search
-     * @return list of fields that are complex classes
+     * @return list of fields that are objects
      */
     public static Collection<Field> getFieldObjects(Class<?> clazz) {
         Collection<Field> fields = new ArrayList<Field>();
@@ -152,6 +152,39 @@ public class ReflectionUtils {
     }
 
     /**
+     * Method to determine which fields in a class are "primitive" types instead
+     * of objects
+     *
+     * @param clazz class to search
+     * @return list of fields that are primitives
+     */
+    public static Collection<Field> getPrimitiveFields(Class<?> clazz) {
+        Collection<Field> fields = new ArrayList<Field>();
+        for (Field field : getAllClassFields(clazz)) {
+            if (field.getType().isPrimitive() || ignoreList.contains(field.getType())) {
+                fields.add(field);
+            }
+        }
+        return fields;
+    }
+
+    /**
+     * Method to get all primitive fields in an object including parent and
+     * containing objects.
+     *
+     * @param clazz base class
+     * @return list of primitive fields
+     */
+    public static Collection<Field> getAllPrimitiveFields(Class<?> clazz) {
+        Collection<Field> fields = getPrimitiveFields(clazz);
+        Collection<Field> fieldObjects = getFieldObjects(clazz);
+        for (Field field : fieldObjects) {
+            fields.addAll(getAllPrimitiveFields(field.getType()));
+        }
+        return fields;
+    }
+
+    /**
      * Method to remove objects from a list of fields
      *
      * @param list of fields to remove from
@@ -161,6 +194,22 @@ public class ReflectionUtils {
         fields = new CopyOnWriteArrayList<Field>(fields);
         for (Field field : fields) {
             if (!field.getType().isPrimitive() && !ignoreList.contains(field.getType())) {
+                fields.remove(field);
+            }
+        }
+        return fields;
+    }
+
+    /**
+     * Method to remove primitives from a list of fields
+     *
+     * @param list of fields to remove from
+     * @return list without primitives
+     */
+    public static Collection<Field> removeFieldPrimitives(Collection<Field> fields) {
+        fields = new CopyOnWriteArrayList<Field>(fields);
+        for (Field field : fields) {
+            if (field.getType().isPrimitive() || ignoreList.contains(field.getType())) {
                 fields.remove(field);
             }
         }
