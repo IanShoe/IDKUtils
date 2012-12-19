@@ -5,7 +5,6 @@
 package com.idk.utils.test;
 
 import com.idk.exception.FieldNotFoundException;
-import com.idk.exception.FieldSetException;
 import com.idk.utils.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -120,9 +119,9 @@ public class ReflectionUtilsTest {
         Two two = new Two();
         twoz.add(two);
         one.setTwoList(twoz);
-        Object result = ReflectionUtils.getProperty(one, "threeString");
+        Object result = (String) ReflectionUtils.getProperty(one, "threeString");
         assertEquals("threeValue", result.toString());
-        result = ReflectionUtils.getProperty(one, "twoList");
+        result = (Collection<Two>) ReflectionUtils.getProperty(one, "twoList");
         assertEquals(twoz, result);
         try {
             result = ReflectionUtils.getProperty(one, "doesNotExist");
@@ -147,13 +146,13 @@ public class ReflectionUtilsTest {
         assertEquals(ReflectionUtils.getProperty(one, "twoList"), twoz);
         try {
             ReflectionUtils.setProperty(one, "doesNotExist", new Object());
-            fail("FieldSetException was not thrown when it should have been.");
-        } catch (FieldSetException ex) {
+            fail("FieldNotFoundException was not thrown when it should have been.");
+        } catch (FieldNotFoundException ex) {
         }
         try {
             ReflectionUtils.setProperty(one, "twoList", "wrongType");
-            fail("FieldSetException was not thrown when it should have been.");
-        } catch (FieldSetException ex) {
+            fail("IllegalArguementException was not thrown when it should have been.");
+        } catch (IllegalArgumentException ex) {
         }
     }
 
