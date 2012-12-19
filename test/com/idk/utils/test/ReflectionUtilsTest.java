@@ -200,4 +200,22 @@ public class ReflectionUtilsTest {
         checkFields.add(testBase.class.getDeclaredField("baseObject"));
         assertTrue(fields.containsAll(checkFields));
     }
+
+    /**
+     * Test of getAllFields method, of class ReflectionUtils.
+     */
+    @Test
+    public void testRemoveFieldObjects() throws Exception {
+        Collection<Field> fields = ReflectionUtils.getAllFields(One.class);
+        fields = ReflectionUtils.removeFieldObjects(fields);
+        Collection<Field> checkFields = new ArrayList<Field>();
+        checkFields.add(One.class.getDeclaredField("oneString"));
+        checkFields.add(Two.class.getDeclaredField("twoString"));
+        checkFields.add(Three.class.getDeclaredField("threeString"));
+        checkFields.add(testBase.class.getDeclaredField("baseString"));
+        assertTrue(fields.containsAll(checkFields));
+        assertTrue(!fields.contains(One.class.getDeclaredField("two")));
+        assertTrue(!fields.contains(Two.class.getDeclaredField("three")));
+        assertTrue(!fields.contains(testBase.class.getDeclaredField("baseObject")));
+    }
 }

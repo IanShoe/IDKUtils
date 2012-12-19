@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  *
@@ -146,6 +147,22 @@ public class ReflectionUtils {
         Collection<Field> fieldObjects = getFieldObjects(clazz);
         for (Field field : fieldObjects) {
             fields.addAll(getAllFields(field.getType()));
+        }
+        return fields;
+    }
+
+    /**
+     * Method to remove objects from a list of fields
+     *
+     * @param list of fields to remove from
+     * @return list without objects
+     */
+    public static Collection<Field> removeFieldObjects(Collection<Field> fields) {
+        fields = new CopyOnWriteArrayList<Field>(fields);
+        for (Field field : fields) {
+            if (!field.getType().isPrimitive() && !ignoreList.contains(field.getType())) {
+                fields.remove(field);
+            }
         }
         return fields;
     }
