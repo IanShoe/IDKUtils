@@ -5,6 +5,7 @@
 package com.idk.utils;
 
 import com.idk.exception.FieldNotFoundException;
+import com.idk.object.ExtendedField;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -214,5 +215,156 @@ public class ReflectionUtils {
             }
         }
         return fields;
+    }
+    
+    /**
+     * Method to get a class's extendedFields found locally and in it's parent
+     * classes
+     *
+     * @param type class to find all extendedFields
+     * @return list of extendedFields
+     */
+    public static Collection<ExtendedField> extendedGetAllClassFields(Object baseObject) {
+        Class clazz = baseObject.getClass();
+        Collection<ExtendedField> extendedFields = new ArrayList<ExtendedField>();
+        for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
+            for (Field field : c.getDeclaredFields()) {
+                ExtendedField extendedField = new ExtendedField(field, baseObject);
+                extendedFields.add(extendedField);
+            }
+        }
+        return extendedFields;
+    }
+
+    /**
+     * Method to determine which extendedFields in a class are objects instead
+     * of
+     * "primitive" types
+     *
+     * @param clazz class to search
+     * @return list of extendedFields that are objects
+     */
+    public static Collection<ExtendedField> extendedGetFieldObjects(Object baseObject) {
+        Collection<ExtendedField> extendedFields = new ArrayList<ExtendedField>();
+        for (ExtendedField extendedField : extendedGetAllClassFields(baseObject)) {
+            if (!extendedField.getField().getType().isPrimitive() && !ignoreList.contains(extendedField.getField().getType())) {
+                extendedFields.add(extendedField);
+            }
+        }
+        return extendedFields;
+    }
+
+    /**
+     * Method to get all extendedFields in an object including parent and
+     * containing
+     * objects.
+     *
+     * @param clazz base class
+     * @return complete list of extendedFields
+     */
+    public static Collection<ExtendedField> extendedGetAllFields(Object baseObject) throws IllegalArgumentException, IllegalAccessException {
+        Collection<ExtendedField> extendedFields = extendedGetAllClassFields(baseObject);
+        Collection<ExtendedField> fieldObjects = extendedGetFieldObjects(baseObject);
+        for (ExtendedField extendedField : fieldObjects) {
+            Field field = extendedField.getField();
+            field.get(baseObject);
+            extendedFields.addAll(extendedGetAllFields(extendedField.getObject()));
+        }
+        return extendedFields;
+    }
+
+    /**
+     * Method to determine which extendedFields in a class are "primitive" types
+     * instead
+     * of objects
+     *
+     * @param clazz class to search
+     * @return list of extendedFields that are primitives
+     */
+    public static Collection<ExtendedField> extendedGetPrimitiveFields(Class<?> clazz) {
+        Collection<ExtendedField> extendedFields = new ArrayList<ExtendedField>();
+        for (ExtendedField extendedField : extendedGetAllClassFields(clazz)) {
+            if (extendedField.getField().getType().isPrimitive() || ignoreList.contains(extendedField.getField().getType())) {
+                extendedFields.add(extendedField);
+            }
+        }
+        return extendedFields;
+    }
+
+    /**
+     * Method to get all primitive extendedFields in an object including parent
+     * and
+     * containing objects.
+     *
+     * @param clazz base class
+     * @return list of primitive extendedFields
+     */
+    public static Collection<ExtendedField> extendedGetAllPrimitiveFields(Class<?> clazz) {
+        Collection<ExtendedField> extendedFields = extendedGetPrimitiveFields(clazz);
+        Collection<ExtendedField> fieldObjects = extendedGetFieldObjects(clazz);
+        for (ExtendedField extendedField : fieldObjects) {
+            extendedFields.addAll(extendedGetAllPrimitiveFields(extendedField.getField().getType()));
+        }
+        return extendedFields;
+    }
+
+    /**
+     * Method to remove objects from a list of extendedFields
+     *
+     * @param list of extendedFields to remove from
+     * @return list without objects
+     */
+    public static Collection<ExtendedField> extendedRemoveFieldObjects(Collection<ExtendedField> extendedFields) {
+        extendedFields = new CopyOnWriteArrayList<ExtendedField>(extendedFields);
+        for (ExtendedField extendedField : extendedFields) {
+            if (!extendedField.getField().getType().isPrimitive() && !ignoreList.contains(extendedField.getField().getType())) {
+                extendedFields.remove(extendedField);
+            }
+        }
+        return extendedFields;
+    }
+
+    /**
+     * Method to remove primitives from a list of extendedFields
+     *
+     * @param list of extendedFields to remove from
+     * @return list without primitives
+     */
+    public static Collection<ExtendedField> extendedRemoveFieldPrimitives(Collection<ExtendedField> extendedFields) {
+        extendedFields = new CopyOnWriteArrayList<ExtendedField>(extendedFields);
+        for (ExtendedField extendedField : extendedFields) {
+            if (extendedField.getField().getType().isPrimitive() || ignoreList.contains(extendedField.getField().getType())) {
+                extendedFields.remove(extendedField);
+            }
+        }
+        return extendedFields;
+    }
+
+    /**
+     * Method to retrieve list of fields from extendedField wrapper
+     *
+     * @param extendedFields extended field collection
+     * @return list of fields
+     */
+    public static Collection<Field> extendedRetrieveFieldCollection(Collection<ExtendedField> extendedFields) {
+        Collection<Field> fields = new ArrayList<Field>();
+        for (ExtendedField extendedField : extendedFields) {
+            fields.add(extendedField.getField());
+        }
+        return fields;
+    }
+
+    /**
+     * Method to retrieve list of objects from extendedField wrapper
+     *
+     * @param extendedFields extended field collection
+     * @return list of objects
+     */
+    public static Collection<Object> extendedRetrieveObjectCollection(Collection<ExtendedField> extendedFields) {
+        Collection<Object> objects = new ArrayList<Object>();
+        for (ExtendedField extendedField : extendedFields) {
+            objects.add(extendedField.getObject());
+        }
+        return objects;
     }
 }
