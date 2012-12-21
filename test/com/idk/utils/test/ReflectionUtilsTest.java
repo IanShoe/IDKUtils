@@ -22,7 +22,7 @@ import org.junit.Test;
  * @author shoemaki
  */
 public class ReflectionUtilsTest {
-    
+
     private One one = new One();
 
     /**
@@ -63,7 +63,7 @@ public class ReflectionUtilsTest {
     }
 
     /**
-     * Test of getAllFields method, of class ReflectionUtils.
+     * Test of getAllClassFields method, of class ReflectionUtils.
      */
     @Test
     public void testGetAllClassFields() throws Exception {
@@ -78,14 +78,13 @@ public class ReflectionUtilsTest {
     }
 
     /**
-     * Test of getAllFields method, of class ReflectionUtils.
+     * Test of getAllFieldObjects method, of class ReflectionUtils.
      */
     @Test
     public void testGetFieldObjects() throws Exception {
         Collection<Field> fields = ReflectionUtils.getFieldObjects(One.class);
         Collection<Field> checkFields = new ArrayList<Field>();
         checkFields.add(One.class.getDeclaredField("two"));
-        checkFields.add(One.class.getDeclaredField("twoList"));
         checkFields.add(Base.class.getDeclaredField("baseObject"));
         assertTrue(fields.containsAll(checkFields));
     }
@@ -98,10 +97,11 @@ public class ReflectionUtilsTest {
         Collection<Field> fields = ReflectionUtils.getAllFields(One.class);
         Collection<Field> checkFields = new ArrayList<Field>();
         checkFields.add(One.class.getDeclaredField("oneString"));
+        checkFields.add(One.class.getDeclaredField("two"));
+        checkFields.add(One.class.getDeclaredField("twoList"));
         checkFields.add(Two.class.getDeclaredField("twoString"));
         checkFields.add(Three.class.getDeclaredField("threeString"));
         checkFields.add(Base.class.getDeclaredField("baseString"));
-        checkFields.add(One.class.getDeclaredField("two"));
         checkFields.add(Two.class.getDeclaredField("three"));
         checkFields.add(Base.class.getDeclaredField("baseObject"));
         assertTrue(fields.containsAll(checkFields));
@@ -115,10 +115,10 @@ public class ReflectionUtilsTest {
         Collection<Field> fields = ReflectionUtils.getPrimitiveFields(One.class);
         Collection<Field> checkFields = new ArrayList<Field>();
         checkFields.add(One.class.getDeclaredField("oneString"));
+        checkFields.add(One.class.getDeclaredField("twoList"));
         checkFields.add(Base.class.getDeclaredField("baseString"));
         assertTrue(fields.containsAll(checkFields));
         assertTrue(!fields.contains(One.class.getDeclaredField("two")));
-        assertTrue(!fields.contains(One.class.getDeclaredField("twoList")));
         assertTrue(!fields.contains(Base.class.getDeclaredField("baseObject")));
     }
 
@@ -127,10 +127,10 @@ public class ReflectionUtilsTest {
      */
     @Test
     public void testGetAllPrimitiveFields() throws Exception {
-        Collection<Field> fields = ReflectionUtils.getAllFields(One.class);
-        fields = ReflectionUtils.removeFieldObjects(fields);
+        Collection<Field> fields = ReflectionUtils.getAllPrimitiveFields(One.class);
         Collection<Field> checkFields = new ArrayList<Field>();
         checkFields.add(One.class.getDeclaredField("oneString"));
+        checkFields.add(One.class.getDeclaredField("twoList"));
         checkFields.add(Two.class.getDeclaredField("twoString"));
         checkFields.add(Three.class.getDeclaredField("threeString"));
         checkFields.add(Base.class.getDeclaredField("baseString"));
@@ -141,7 +141,7 @@ public class ReflectionUtilsTest {
     }
 
     /**
-     * Test of getAllFields method, of class ReflectionUtils.
+     * Test of removeFieldObjects method, of class ReflectionUtils.
      */
     @Test
     public void testRemoveFieldObjects() throws Exception {
@@ -149,6 +149,7 @@ public class ReflectionUtilsTest {
         fields = ReflectionUtils.removeFieldObjects(fields);
         Collection<Field> checkFields = new ArrayList<Field>();
         checkFields.add(One.class.getDeclaredField("oneString"));
+        checkFields.add(One.class.getDeclaredField("twoList"));
         checkFields.add(Two.class.getDeclaredField("twoString"));
         checkFields.add(Three.class.getDeclaredField("threeString"));
         checkFields.add(Base.class.getDeclaredField("baseString"));
@@ -159,7 +160,7 @@ public class ReflectionUtilsTest {
     }
 
     /**
-     * Test of getAllFields method, of class ReflectionUtils.
+     * Test of removeFieldPrimitives method, of class ReflectionUtils.
      */
     @Test
     public void testRemoveFieldPrimitives() throws Exception {
@@ -171,125 +172,162 @@ public class ReflectionUtilsTest {
         checkFields.add(Base.class.getDeclaredField("baseObject"));
         assertTrue(fields.containsAll(checkFields));
         assertTrue(!fields.contains(One.class.getDeclaredField("oneString")));
+        assertTrue(!fields.contains(One.class.getDeclaredField("twoList")));
         assertTrue(!fields.contains(Two.class.getDeclaredField("twoString")));
         assertTrue(!fields.contains(Three.class.getDeclaredField("threeString")));
         assertTrue(!fields.contains(Base.class.getDeclaredField("baseString")));
     }
 
     /**
-     * Test of getAllFields method, of class ReflectionUtils.
+     * Test of extendedGetAllClassFields method, of class ReflectionUtils.
      */
     @Test
     public void testExtendedGetAllClassFields() throws Exception {
-        Collection<ExtendedField> fields = ReflectionUtils.extendedGetAllClassFields(One.class);
-        Collection<ExtendedField> checkFields = new ArrayList<ExtendedField>();
-        checkFields.add(new ExtendedField(One.class.getDeclaredField("oneString"), one));
-        checkFields.add(new ExtendedField(One.class.getDeclaredField("two"), one));
-        checkFields.add(new ExtendedField(One.class.getDeclaredField("twoList"), one));
-        checkFields.add(new ExtendedField(Base.class.getDeclaredField("baseString"), one));
-        checkFields.add(new ExtendedField(Base.class.getDeclaredField("baseObject"), one));
-        assertTrue(fields.containsAll(checkFields));
+        Collection<ExtendedField> fields = ReflectionUtils.extendedGetAllClassFields(one);
+        Collection<String> fieldNames = new ArrayList();
+        fieldNames.add("oneString");
+        fieldNames.add("two");
+        fieldNames.add("twoList");
+        fieldNames.add("baseString");
+        fieldNames.add("baseObject");
+        assertTrue(fields.size() == fieldNames.size());
+        for (ExtendedField field : fields) {
+            assertTrue(fieldNames.contains(field.getField().getName()));
+            assertTrue(field.getObject().equals(one));
+        }
     }
 
-    
-    
     /**
-     * Test of getAllFields method, of class ReflectionUtils.
+     * Test of extendedGetFieldObjects method, of class ReflectionUtils.
      */
     @Test
     public void testExtendedGetFieldObjects() throws Exception {
-        Collection<Field> fields = ReflectionUtils.getFieldObjects(One.class);
-        Collection<Field> checkFields = new ArrayList<Field>();
-        checkFields.add(One.class.getDeclaredField("two"));
-        checkFields.add(One.class.getDeclaredField("twoList"));
-        checkFields.add(Base.class.getDeclaredField("baseObject"));
-        assertTrue(fields.containsAll(checkFields));
+        Collection<ExtendedField> fields = ReflectionUtils.extendedGetFieldObjects(one);
+        Collection<String> fieldNames = new ArrayList();
+        fieldNames.add("two");
+        fieldNames.add("baseObject");
+        assertTrue(fields.size() == fieldNames.size());
+        for (ExtendedField field : fields) {
+            assertTrue(fieldNames.contains(field.getField().getName()));
+            assertTrue(field.getObject().equals(one));
+        }
     }
 
     /**
-     * Test of getAllFields method, of class ReflectionUtils.
+     * Test of extendedGetAllFields method, of class ReflectionUtils.
      */
     @Test
     public void testExtendedGetAllFields() throws Exception {
-        Collection<Field> fields = ReflectionUtils.getAllFields(One.class);
-        Collection<Field> checkFields = new ArrayList<Field>();
-        checkFields.add(One.class.getDeclaredField("oneString"));
-        checkFields.add(Two.class.getDeclaredField("twoString"));
-        checkFields.add(Three.class.getDeclaredField("threeString"));
-        checkFields.add(Base.class.getDeclaredField("baseString"));
-        checkFields.add(One.class.getDeclaredField("two"));
-        checkFields.add(Two.class.getDeclaredField("three"));
-        checkFields.add(Base.class.getDeclaredField("baseObject"));
-        assertTrue(fields.containsAll(checkFields));
+        Collection<ExtendedField> fields = ReflectionUtils.extendedGetAllFields(one);
+        Collection<String> fieldNames = new ArrayList();
+        fieldNames.add("oneString");
+        fieldNames.add("twoString");
+        fieldNames.add("threeString");
+        fieldNames.add("baseString");
+        fieldNames.add("two");
+        fieldNames.add("twoList");
+        fieldNames.add("three");
+        fieldNames.add("baseObject");
+        assertTrue(fields.size() == fieldNames.size());
+        for (ExtendedField field : fields) {
+            assertTrue(fieldNames.contains(field.getField().getName()));
+            if ("oneString".equals(field.getField().getName()) || "baseString".equals(field.getField().getName()) || "two".equals(field.getField().getName()) || "twoList".equals(field.getField().getName()) || "baseObject".equals(field.getField().getName())) {
+                assertTrue(field.getObject().equals(one));
+            } else if ("twoString".equals(field.getField().getName()) || "three".equals(field.getField().getName())) {
+                assertTrue(field.getObject().equals(one.getTwo()));
+            } else if ("three".equals(field.getField().getName())) {
+                assertTrue(field.getObject().equals(one.getTwo().getThree()));
+            }
+        }
     }
 
     /**
-     * Test of getPrimitiveFields method, of class ReflectionUtils.
+     * Test of extendedGetPrimitiveFields method, of class ReflectionUtils.
      */
     @Test
     public void testExtendedGetPrimitiveFields() throws Exception {
-        Collection<Field> fields = ReflectionUtils.getPrimitiveFields(One.class);
-        Collection<Field> checkFields = new ArrayList<Field>();
-        checkFields.add(One.class.getDeclaredField("oneString"));
-        checkFields.add(Base.class.getDeclaredField("baseString"));
-        assertTrue(fields.containsAll(checkFields));
-        assertTrue(!fields.contains(One.class.getDeclaredField("two")));
-        assertTrue(!fields.contains(One.class.getDeclaredField("twoList")));
-        assertTrue(!fields.contains(Base.class.getDeclaredField("baseObject")));
+        Collection<ExtendedField> fields = ReflectionUtils.extendedGetPrimitiveFields(one);
+        Collection<String> fieldNames = new ArrayList();
+        fieldNames.add("oneString");
+        fieldNames.add("twoList");
+        fieldNames.add("baseString");
+        assertTrue(fields.size() == fieldNames.size());
+        for (ExtendedField field : fields) {
+            assertTrue(fieldNames.contains(field.getField().getName()));
+            assertTrue(field.getObject().equals(one));
+        }
     }
 
     /**
-     * Test of getAllPrimitiveFields method, of class ReflectionUtils.
+     * Test of extendedGetAllPrimitiveFields method, of class ReflectionUtils.
      */
     @Test
     public void testExtendedGetAllPrimitiveFields() throws Exception {
-        Collection<Field> fields = ReflectionUtils.getAllFields(One.class);
-        fields = ReflectionUtils.removeFieldObjects(fields);
-        Collection<Field> checkFields = new ArrayList<Field>();
-        checkFields.add(One.class.getDeclaredField("oneString"));
-        checkFields.add(Two.class.getDeclaredField("twoString"));
-        checkFields.add(Three.class.getDeclaredField("threeString"));
-        checkFields.add(Base.class.getDeclaredField("baseString"));
-        assertTrue(fields.containsAll(checkFields));
-        assertTrue(!fields.contains(One.class.getDeclaredField("two")));
-        assertTrue(!fields.contains(Two.class.getDeclaredField("three")));
-        assertTrue(!fields.contains(Base.class.getDeclaredField("baseObject")));
+        Collection<ExtendedField> fields = ReflectionUtils.extendedGetAllPrimitiveFields(one);
+        Collection<String> fieldNames = new ArrayList();
+        fieldNames.add("oneString");
+        fieldNames.add("twoString");
+        fieldNames.add("threeString");
+        fieldNames.add("baseString");
+        fieldNames.add("twoList");
+        assertTrue(fields.size() == fieldNames.size());
+        for (ExtendedField field : fields) {
+            assertTrue(fieldNames.contains(field.getField().getName()));
+            if ("oneString".equals(field.getField().getName()) || "baseString".equals(field.getField().getName()) || "twoList".equals(field.getField().getName())) {
+                assertTrue(field.getObject().equals(one));
+            } else if ("twoString".equals(field.getField().getName())) {
+                assertTrue(field.getObject().equals(one.getTwo()));
+            } else if ("threeString".equals(field.getField().getName())) {
+                assertTrue(field.getObject().equals(one.getTwo().getThree()));
+            }
+        }
     }
 
     /**
-     * Test of getAllFields method, of class ReflectionUtils.
+     * Test of extendedRemoveFieldObjects method, of class ReflectionUtils.
      */
     @Test
     public void testExtendedRemoveFieldObjects() throws Exception {
-        Collection<Field> fields = ReflectionUtils.getAllFields(One.class);
-        fields = ReflectionUtils.removeFieldObjects(fields);
-        Collection<Field> checkFields = new ArrayList<Field>();
-        checkFields.add(One.class.getDeclaredField("oneString"));
-        checkFields.add(Two.class.getDeclaredField("twoString"));
-        checkFields.add(Three.class.getDeclaredField("threeString"));
-        checkFields.add(Base.class.getDeclaredField("baseString"));
-        assertTrue(fields.containsAll(checkFields));
-        assertTrue(!fields.contains(One.class.getDeclaredField("two")));
-        assertTrue(!fields.contains(Two.class.getDeclaredField("three")));
-        assertTrue(!fields.contains(Base.class.getDeclaredField("baseObject")));
+        Collection<ExtendedField> fields = ReflectionUtils.extendedGetAllFields(one);
+        fields = ReflectionUtils.extendedRemoveFieldObjects(fields);
+        Collection<String> fieldNames = new ArrayList();
+        fieldNames.add("oneString");
+        fieldNames.add("twoString");
+        fieldNames.add("threeString");
+        fieldNames.add("baseString");
+        fieldNames.add("twoList");
+        assertTrue(fields.size() == fieldNames.size());
+        for (ExtendedField field : fields) {
+            assertTrue(fieldNames.contains(field.getField().getName()));
+            if ("oneString".equals(field.getField().getName()) || "baseString".equals(field.getField().getName()) || "twoList".equals(field.getField().getName())) {
+                assertTrue(field.getObject().equals(one));
+            } else if ("twoString".equals(field.getField().getName())) {
+                assertTrue(field.getObject().equals(one.getTwo()));
+            } else if ("threeString".equals(field.getField().getName())) {
+                assertTrue(field.getObject().equals(one.getTwo().getThree()));
+            }
+        }
     }
 
     /**
-     * Test of getAllFields method, of class ReflectionUtils.
+     * Test of extendedRemoveFieldPrimitives method, of class ReflectionUtils.
      */
     @Test
     public void testExtendedRemoveFieldPrimitives() throws Exception {
         Collection<ExtendedField> fields = ReflectionUtils.extendedGetAllFields(one);
         fields = ReflectionUtils.extendedRemoveFieldPrimitives(fields);
-        Collection<ExtendedField> checkFields = new ArrayList<ExtendedField>();
-        checkFields.add(new ExtendedField(One.class.getDeclaredField("two"), one));
-        checkFields.add(new ExtendedField(One.class.getDeclaredField("three"), one.getTwo()));
-        checkFields.add(new ExtendedField(One.class.getDeclaredField("baseObject"), one));
-        assertTrue(fields.containsAll(checkFields));
-        assertTrue(!fields.contains(new ExtendedField(One.class.getDeclaredField("oneString"), one)));
-        assertTrue(!fields.contains(new ExtendedField(Two.class.getDeclaredField("twoString"), one.getTwo())));
-        assertTrue(!fields.contains(new ExtendedField(Three.class.getDeclaredField("threeString"), one.getTwo().getThree())));
-        assertTrue(!fields.contains(new ExtendedField(Base.class.getDeclaredField("baseString"), one)));
-       
+        Collection<String> fieldNames = new ArrayList();
+        fieldNames.add("two");
+        fieldNames.add("three");
+        fieldNames.add("baseObject");
+        assertTrue(fields.size() == fieldNames.size());
+        for (ExtendedField field : fields) {
+            assertTrue(fieldNames.contains(field.getField().getName()));
+            if ("two".equals(field.getField().getName()) || "baseObject".equals(field.getField().getName())) {
+                assertTrue(field.getObject().equals(one));
+            } else {
+                assertTrue(field.getObject().equals(one.getTwo()));
+            }
+        }
     }
 }

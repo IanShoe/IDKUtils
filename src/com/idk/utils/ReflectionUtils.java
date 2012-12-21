@@ -7,10 +7,7 @@ package com.idk.utils;
 import com.idk.exception.FieldNotFoundException;
 import com.idk.object.ExtendedField;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -35,9 +32,11 @@ public class ReflectionUtils {
         classIgnoreList.add(Boolean.class);
         classIgnoreList.add(Byte.class);
         classIgnoreList.add(Character.class);
+        classIgnoreList.add(Collection.class);
         classIgnoreList.add(Double.class);
         classIgnoreList.add(Float.class);
         classIgnoreList.add(Integer.class);
+        classIgnoreList.add(List.class);
         classIgnoreList.add(Long.class);
         classIgnoreList.add(String.class);
         classIgnoreList.add(Short.class);
@@ -216,7 +215,7 @@ public class ReflectionUtils {
         }
         return fields;
     }
-    
+
     /**
      * Method to get a class's extendedFields found locally and in it's parent
      * classes
@@ -267,8 +266,8 @@ public class ReflectionUtils {
         Collection<ExtendedField> fieldObjects = extendedGetFieldObjects(baseObject);
         for (ExtendedField extendedField : fieldObjects) {
             Field field = extendedField.getField();
-            field.get(baseObject);
-            extendedFields.addAll(extendedGetAllFields(extendedField.getObject()));
+            field.setAccessible(true);
+            extendedFields.addAll(extendedGetAllFields(field.get(baseObject)));
         }
         return extendedFields;
     }
@@ -281,9 +280,9 @@ public class ReflectionUtils {
      * @param clazz class to search
      * @return list of extendedFields that are primitives
      */
-    public static Collection<ExtendedField> extendedGetPrimitiveFields(Class<?> clazz) {
+    public static Collection<ExtendedField> extendedGetPrimitiveFields(Object baseObject) {
         Collection<ExtendedField> extendedFields = new ArrayList<ExtendedField>();
-        for (ExtendedField extendedField : extendedGetAllClassFields(clazz)) {
+        for (ExtendedField extendedField : extendedGetAllClassFields(baseObject)) {
             if (extendedField.getField().getType().isPrimitive() || ignoreList.contains(extendedField.getField().getType())) {
                 extendedFields.add(extendedField);
             }
@@ -299,11 +298,14 @@ public class ReflectionUtils {
      * @param clazz base class
      * @return list of primitive extendedFields
      */
-    public static Collection<ExtendedField> extendedGetAllPrimitiveFields(Class<?> clazz) {
-        Collection<ExtendedField> extendedFields = extendedGetPrimitiveFields(clazz);
-        Collection<ExtendedField> fieldObjects = extendedGetFieldObjects(clazz);
+    public static Collection<ExtendedField> extendedGetAllPrimitiveFields(Object baseObject) throws IllegalArgumentException, IllegalAccessException {
+        Collection<ExtendedField> extendedFields = extendedGetPrimitiveFields(baseObject);
+        Collection<ExtendedField> fieldObjects = extendedGetFieldObjects(baseObject);
         for (ExtendedField extendedField : fieldObjects) {
-            extendedFields.addAll(extendedGetAllPrimitiveFields(extendedField.getField().getType()));
+            Field field = extendedField.getField();
+            field.setAccessible(true);
+            field.get(baseObject);
+            extendedFields.addAll(extendedGetAllPrimitiveFields(field.get(baseObject)));
         }
         return extendedFields;
     }
