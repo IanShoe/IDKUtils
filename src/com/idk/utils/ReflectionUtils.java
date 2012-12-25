@@ -9,6 +9,8 @@ import com.idk.object.ExtendedField;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -261,13 +263,17 @@ public class ReflectionUtils {
      * @param clazz base class
      * @return complete list of extendedFields
      */
-    public static Collection<ExtendedField> extendedGetAllFields(Object baseObject) throws IllegalArgumentException, IllegalAccessException {
+    public static Collection<ExtendedField> extendedGetAllFields(Object baseObject) {
         Collection<ExtendedField> extendedFields = extendedGetAllClassFields(baseObject);
         Collection<ExtendedField> fieldObjects = extendedGetFieldObjects(baseObject);
         for (ExtendedField extendedField : fieldObjects) {
             Field field = extendedField.getField();
             field.setAccessible(true);
-            extendedFields.addAll(extendedGetAllFields(field.get(baseObject)));
+            try {
+                extendedFields.addAll(extendedGetAllFields(field.get(baseObject)));
+            } catch (Exception ex) {
+                Logger.getLogger(ReflectionUtils.class.getName()).log(Level.SEVERE, "Error when retrieving " + field.getName() + " field from baseObject of type :" + baseObject.getClass(), ex);
+            }
         }
         return extendedFields;
     }
@@ -298,14 +304,17 @@ public class ReflectionUtils {
      * @param clazz base class
      * @return list of primitive extendedFields
      */
-    public static Collection<ExtendedField> extendedGetAllPrimitiveFields(Object baseObject) throws IllegalArgumentException, IllegalAccessException {
+    public static Collection<ExtendedField> extendedGetAllPrimitiveFields(Object baseObject) {
         Collection<ExtendedField> extendedFields = extendedGetPrimitiveFields(baseObject);
         Collection<ExtendedField> fieldObjects = extendedGetFieldObjects(baseObject);
         for (ExtendedField extendedField : fieldObjects) {
             Field field = extendedField.getField();
             field.setAccessible(true);
-            field.get(baseObject);
-            extendedFields.addAll(extendedGetAllPrimitiveFields(field.get(baseObject)));
+            try {
+                extendedFields.addAll(extendedGetAllPrimitiveFields(field.get(baseObject)));
+            } catch (Exception ex) {
+                Logger.getLogger(ReflectionUtils.class.getName()).log(Level.SEVERE, "Error when retrieving field value from baseObject of type :" + baseObject.getClass(), ex);
+            }
         }
         return extendedFields;
     }

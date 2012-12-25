@@ -22,7 +22,6 @@ public class FormatUtilsTest {
      */
     @Test
     public void testFormatUpperToUnderscore() {
-        System.out.println("formatUpperToUnderscore");
         String unformattedName = "thisIsAStringWithCapitals";
         String expResult = "this_is_a_string_with_capitals";
         String result = FormatUtils.formatUpperToUnderscore(unformattedName);
@@ -34,34 +33,32 @@ public class FormatUtilsTest {
      */
     @Test
     public void testFormatSmartAllUpperToUnderscore() {
-        System.out.println("formatSmartAllUpperToUnderscore");
-        
         String unformattedName = "thisIsAString";
         String expResult = "this_is_a_string";
         String result = FormatUtils.formatSmartAllUpperToUnderscore(unformattedName);
         assertEquals(expResult, result);
-        
-        unformattedName ="ThisIsAString";
+
+        unformattedName = "ThisIsAString";
         expResult = "this_is_a_string";
         result = FormatUtils.formatSmartAllUpperToUnderscore(unformattedName);
         assertEquals(expResult, result);
-        
+
         unformattedName = "ROYGBIV";
         expResult = "roygbiv";
         result = FormatUtils.formatSmartAllUpperToUnderscore(unformattedName);
         assertEquals(expResult, result);
-        
+
         unformattedName = "MVDConfig";
         expResult = "mvd_config";
         result = FormatUtils.formatSmartAllUpperToUnderscore(unformattedName);
         assertEquals(expResult, result);
-        
+
         unformattedName = "ACRONymACRO";
         expResult = "acro_nym_acro";
         result = FormatUtils.formatSmartAllUpperToUnderscore(unformattedName);
         assertEquals(expResult, result);
-        
-        unformattedName ="TestEVERYThingMAN";
+
+        unformattedName = "TestEVERYThingMAN";
         expResult = "test_every_thing_man";
         result = FormatUtils.formatSmartAllUpperToUnderscore(unformattedName);
         assertEquals(expResult, result);
@@ -72,7 +69,6 @@ public class FormatUtilsTest {
      */
     @Test
     public void testFormatUnderscoreToUpper() {
-        System.out.println("testUnFormatUnderscoreToUpper");
         String formattedName = "this_is_a_string_with_underscores";
         String expResult = "thisIsAStringWithUnderscores";
         String result = FormatUtils.formatUnderscoreToUpper(formattedName);
@@ -110,7 +106,6 @@ public class FormatUtilsTest {
      */
     @Test
     public void testLowerFirstCapital() {
-        System.out.println("lowerFirstCapital");
         String stringToLower = "thisIsAString";
         String expResult = "thisisAString";
         String result = FormatUtils.lowerFirstCapital(stringToLower);
