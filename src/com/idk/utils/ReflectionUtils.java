@@ -4,6 +4,7 @@
  */
 package com.idk.utils;
 
+import com.idk.annotation.ReflectionIgnore;
 import com.idk.exception.FieldNotFoundException;
 import com.idk.object.ExtendedField;
 import java.lang.reflect.Field;
@@ -230,6 +231,9 @@ public class ReflectionUtils {
         Collection<ExtendedField> extendedFields = new ArrayList<ExtendedField>();
         for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
             for (Field field : c.getDeclaredFields()) {
+                if(field.getAnnotation(ReflectionIgnore.class) != null){
+                    continue;
+                }
                 ExtendedField extendedField = new ExtendedField(field, baseObject);
                 extendedFields.add(extendedField);
             }
@@ -270,6 +274,9 @@ public class ReflectionUtils {
             Field field = extendedField.getField();
             field.setAccessible(true);
             try {
+                if (field.get(baseObject) == null) {
+                    field.set(baseObject, field.getType().newInstance());
+                }
                 extendedFields.addAll(extendedGetAllFields(field.get(baseObject)));
             } catch (Exception ex) {
                 Logger.getLogger(ReflectionUtils.class.getName()).log(Level.SEVERE, "Error when retrieving " + field.getName() + " field from baseObject of type :" + baseObject.getClass(), ex);
@@ -311,6 +318,9 @@ public class ReflectionUtils {
             Field field = extendedField.getField();
             field.setAccessible(true);
             try {
+                if (field.get(baseObject) == null) {
+                    field.set(baseObject, field.getType().newInstance());
+                }
                 extendedFields.addAll(extendedGetAllPrimitiveFields(field.get(baseObject)));
             } catch (Exception ex) {
                 Logger.getLogger(ReflectionUtils.class.getName()).log(Level.SEVERE, "Error when retrieving field value from baseObject of type :" + baseObject.getClass(), ex);
