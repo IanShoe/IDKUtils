@@ -5,7 +5,8 @@
 package com.idk.ryan;
 
 /**
- *
+ * This is an awesome util that Ryan has created to mimic Ian's format utility!
+ * Do it well!
  * @author Ryan
  */
 public class RyanFormatUtils {
