@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.FileExistsException;
 
 /**
  *
@@ -37,6 +38,7 @@ public class ReflectionUtils {
         classIgnoreList.add(Character.class);
         classIgnoreList.add(Collection.class);
         classIgnoreList.add(Double.class);
+        classIgnoreList.add(Enum.class);
         classIgnoreList.add(Float.class);
         classIgnoreList.add(Integer.class);
         classIgnoreList.add(List.class);
@@ -116,7 +118,11 @@ public class ReflectionUtils {
     public static Collection<Field> getAllClassFields(Class<?> clazz) {
         Collection<Field> fields = new ArrayList<Field>();
         for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
-            fields.addAll(Arrays.asList(c.getDeclaredFields()));
+            for (Field field : c.getDeclaredFields()) {
+                if(field.getAnnotation(ReflectionIgnore.class) == null){
+                    fields.add(field);
+                }
+            }
         }
         return fields;
     }
@@ -131,7 +137,7 @@ public class ReflectionUtils {
     public static Collection<Field> getFieldObjects(Class<?> clazz) {
         Collection<Field> fields = new ArrayList<Field>();
         for (Field field : getAllClassFields(clazz)) {
-            if (!field.getType().isPrimitive() && !ignoreList.contains(field.getType())) {
+            if (!field.getType().isPrimitive() && !ignoreList.contains(field.getType()) && field.getAnnotation(ReflectionIgnore.class) == null) {
                 fields.add(field);
             }
         }
@@ -231,9 +237,6 @@ public class ReflectionUtils {
         Collection<ExtendedField> extendedFields = new ArrayList<ExtendedField>();
         for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
             for (Field field : c.getDeclaredFields()) {
-                if(field.getAnnotation(ReflectionIgnore.class) != null){
-                    continue;
-                }
                 ExtendedField extendedField = new ExtendedField(field, baseObject);
                 extendedFields.add(extendedField);
             }
@@ -252,7 +255,7 @@ public class ReflectionUtils {
     public static Collection<ExtendedField> extendedGetFieldObjects(Object baseObject) {
         Collection<ExtendedField> extendedFields = new ArrayList<ExtendedField>();
         for (ExtendedField extendedField : extendedGetAllClassFields(baseObject)) {
-            if (!extendedField.getField().getType().isPrimitive() && !ignoreList.contains(extendedField.getField().getType())) {
+            if (!extendedField.getField().getType().isPrimitive() && !ignoreList.contains(extendedField.getField().getType()) && extendedField.getField().getAnnotation(ReflectionIgnore.class) == null) {
                 extendedFields.add(extendedField);
             }
         }
@@ -274,10 +277,9 @@ public class ReflectionUtils {
             Field field = extendedField.getField();
             field.setAccessible(true);
             try {
-                if (field.get(baseObject) == null) {
-                    field.set(baseObject, field.getType().newInstance());
+                if (field.get(baseObject) != null) {
+                    extendedFields.addAll(extendedGetAllFields(field.get(baseObject)));
                 }
-                extendedFields.addAll(extendedGetAllFields(field.get(baseObject)));
             } catch (Exception ex) {
                 Logger.getLogger(ReflectionUtils.class.getName()).log(Level.SEVERE, "Error when retrieving " + field.getName() + " field from baseObject of type :" + baseObject.getClass(), ex);
             }
@@ -287,8 +289,7 @@ public class ReflectionUtils {
 
     /**
      * Method to determine which extendedFields in a class are "primitive" types
-     * instead
-     * of objects
+     * instead of objects
      *
      * @param clazz class to search
      * @return list of extendedFields that are primitives
@@ -305,8 +306,7 @@ public class ReflectionUtils {
 
     /**
      * Method to get all primitive extendedFields in an object including parent
-     * and
-     * containing objects.
+     * and containing objects.
      *
      * @param clazz base class
      * @return list of primitive extendedFields
@@ -318,12 +318,11 @@ public class ReflectionUtils {
             Field field = extendedField.getField();
             field.setAccessible(true);
             try {
-                if (field.get(baseObject) == null) {
-                    field.set(baseObject, field.getType().newInstance());
+                if (field.get(baseObject) != null) {
+                    extendedFields.addAll(extendedGetAllPrimitiveFields(field.get(baseObject)));
                 }
-                extendedFields.addAll(extendedGetAllPrimitiveFields(field.get(baseObject)));
             } catch (Exception ex) {
-                Logger.getLogger(ReflectionUtils.class.getName()).log(Level.SEVERE, "Error when retrieving field value from baseObject of type :" + baseObject.getClass(), ex);
+                Logger.getLogger(ReflectionUtils.class.getName()).log(Level.SEVERE, "Error when retrieving value from field: " +field.getName() + " from baseObject of type :" + baseObject.getClass(), ex);
             }
         }
         return extendedFields;
