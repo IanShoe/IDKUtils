@@ -7,17 +7,24 @@ package com.idk.ryan;
 /**
  * This is an awesome util that Ryan has created to mimic Ian's format utility!
  * Do it well!
+ *
  * @author Ryan
  */
 public class RyanFormatUtils {
-    public static String ryanFormatUpperToUnderscore(String varOne){
-        
-        String formattedVarOne;
-        char [] tempStringArray = varOne.toCharArray();
+
+    public static String ryanFormatUpperToUnderscore(String varOne) {
+
+        //Ian just a temporary null assignment. Remove when ready to use
+        String formattedVarOne = null;
+        char[] tempStringArray = varOne.toCharArray();
         int x = 0;
         int y = 0;
-        
-        void String stringTraverse() {
+        return formattedVarOne;
+    }
+    
+    // This is what you had, take a look at how it should look.
+    // void String stringTraverse() {
+    public static String stringTraverse() {
                         
             if (tempStringArray[x] islower) {
                 y = x;
@@ -55,15 +62,23 @@ public class RyanFormatUtils {
                     }
                 }
             }
-            
-            
-        return formattedVarOne;
-        }
-    }
 }
 
 
+// Dear Ryan,
+// Not a bad start. I like your first sections where you check if the current
+// character is upper or lower and then keep a while loop to check subsequent
+// characters if they are the same. I believe though, your only going to want to
+// check if a letter is upper though. If lower, then you simply want to 
+// increment your main counter variable that traverses the UNformatted string.
 
+// Second, the reason why your second method was squiggled red is because you're
+// putting a method within a method. Remember with Object Oriented Programing,
+// your class contains various methods which you can call within the same class.
+// I've fixed up that part so you'll need to make sure you link up the main
+// with your second method. (2nd method needs things passed to it in the params)
+
+// GOOD LUCK!
 
 /*Pseudocode for program design
  * set string main
